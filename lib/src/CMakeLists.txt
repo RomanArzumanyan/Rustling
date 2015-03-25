@@ -1,0 +1,9 @@
+#Add source files
+set(RUSTLING_SOURCE
+  ${SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Command.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CmdQueue.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Event.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Kernel.cpp
+  PARENT_SCOPE
+)
