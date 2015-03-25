@@ -1,7 +1,7 @@
 #pragma once
 #include "Common.hpp"
 
-namespace scow
+namespace rustling
 {
 class CmdQueue;
 class Event;

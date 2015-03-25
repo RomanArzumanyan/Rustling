@@ -3,7 +3,7 @@
 #include "Context.hpp"
 #include "Device.hpp"
 
-namespace scow
+namespace rustling
 {
 class BasicCommand;
 class EventCommand;

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace scow
+namespace rustling
 {
 template<class T>
 class MemObject

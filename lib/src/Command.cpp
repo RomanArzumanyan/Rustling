@@ -3,7 +3,7 @@
 #include "SException.hpp"
 #include "Event.hpp"
 
-namespace scow
+namespace rustling
 {
 BasicCommand::BasicCommand()
 {}

@@ -1,7 +1,7 @@
 #include "Event.hpp"
 #include "SException.hpp"
 
-namespace scow
+namespace rustling
 {
 Event::Event():
     event(NULL)

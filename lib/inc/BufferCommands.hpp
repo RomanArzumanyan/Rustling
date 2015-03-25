@@ -3,7 +3,7 @@
 #include "CmdQueue.hpp"
 #include "SException.hpp"
 
-namespace scow
+namespace rustling
 {
 template<class T>
 class Buffer;

@@ -3,7 +3,7 @@
 #include "Command.hpp"
 #include "CmdQueue.hpp"
 
-namespace scow
+namespace rustling
 {
 class Event
 {

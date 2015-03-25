@@ -2,7 +2,7 @@
 #include "CmdQueue.hpp"
 #include "SException.hpp"
 
-namespace scow
+namespace rustling
 {
 CmdQueue::CmdQueue(
     Context &ctx,

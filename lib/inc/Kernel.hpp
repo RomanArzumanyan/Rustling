@@ -5,7 +5,7 @@
 #include "Command.hpp"
 #include "MemObject.hpp"
 
-namespace scow
+namespace rustling
 {
 class Context;
 class Device;
