@@ -1,0 +1,27 @@
+project(SCOW_PP)
+cmake_minimum_required(VERSION 2.8)
+
+set (lib_dir ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+add_subdirectory(${lib_dir})
+
+#SCOW_PP library
+add_library(SCOW_PP SHARED ${SCOW_PP_HEADERS} ${SCOW_PP_SOURCE})
+include_directories(${SCOW_PP_INC_PATH})
+
+#SCOW_PP tests executable
+add_executable(SCOW_PP_APP ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+
+#Find OpenCL
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+find_package(OpenCL REQUIRED)
+if(OPENCL_FOUND)
+  include_directories(${OPENCL_INCLUDE_DIRS})
+  target_link_libraries(SCOW_PP ${OPENCL_LIBRARIES})
+endif(OPENCL_FOUND)
+
+#Link tests with SCOW_PP library
+target_link_libraries(SCOW_PP_APP SCOW_PP)
+
+#Set compiler flags
+set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_BUILD_TYPE Debug)
