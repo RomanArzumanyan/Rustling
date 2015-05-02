@@ -204,6 +204,10 @@ void EnqueueKernel::execute(CmdQueue &queue)
 
     if (ret != CL_SUCCESS)
         throw(SException(ret));
+
+    cout << args.size() << endl;
+    for (auto arg : args)
+        free(arg);
 }
 
 EnqueueKernel& EnqueueKernel::operator >>(Event &event)
