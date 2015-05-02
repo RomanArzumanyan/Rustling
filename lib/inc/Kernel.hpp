@@ -52,7 +52,7 @@ public:
     KernelArg(Buffer<T>& arg)
     {
         this->ptr = static_cast<void*>(&arg.getMemObject());
-        this->size = sizeof(arg);
+        this->size = sizeof(arg.getMemObject());
     }
 
     ~KernelArg()
