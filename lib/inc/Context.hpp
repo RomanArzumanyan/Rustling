@@ -1,5 +1,6 @@
 #pragma once
 #include <initializer_list>
+#include <vector>
 #include "Common.hpp"
 #include "Device.hpp"
 
@@ -23,6 +24,13 @@ public:
         const cl_context_properties *properties = 0x0,
         pfn_notify callback = 0x0,
         void *user_data = 0x0);
+
+    Context(
+        std::vector<Device> devices,
+        const cl_context_properties *properties = 0x0,
+        pfn_notify callback = 0x0,
+        void *user_data = 0x0);
+
     ~Context();
     cl_context& getContext();
 };

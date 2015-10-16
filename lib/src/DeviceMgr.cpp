@@ -30,7 +30,7 @@ cl_device_type DeviceMgr::checkType(cl_device_id& device_id)
 {
     cl_device_type type;
 
-    ret_code ret = clGetDeviceInfo(
+    auto ret = clGetDeviceInfo(
                        device_id,
                        CL_DEVICE_TYPE,
                        sizeof(cl_device_type),
@@ -50,7 +50,7 @@ vector<cl_device_type> const& DeviceMgr::getSupportedTypes()
 
 Device* DeviceMgr::create(cl_device_type type, cl_device_id& id)
 {
-    typename devmgr_map::iterator it = factory_map.find(type);
+    auto it = factory_map.find(type);
     if (it != factory_map.end())
         return it->second->create(id);
 
@@ -98,18 +98,11 @@ std::vector<Device> DeviceMgr::makeDevices(Platform &platform, cl_device_type ty
 {
     std::vector<Device> result;
     try {
-        auto devices = platform.getDevices();
-        auto devmap = PlatformMgr::checkDevices(platform.getID());
+        for (auto &device: platform.getDevices())
+            if (DeviceMgr::checkType(device) == type)
+                    result.push_back(*create(type, device));
 
-        for (auto device = devices.begin(); device != devices.end(); device++) {
-            if (DeviceMgr::checkType(*device) == type) {
-                int num_devs = devmap.find(type)->second;
-                for (auto i = 0; i < num_devs; i++)
-                    result.push_back(*create(type, *device));
-
-                return result;
-            }
-        }
+        return result;
     } catch (SException &e) {
         throw (e);
     }

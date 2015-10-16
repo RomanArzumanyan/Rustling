@@ -52,29 +52,67 @@ static char* Read_Source_File(const char *filename)
     return src;
 }
 
+Kernel::Kernel():
+    name(""),
+    kernel(0x0),
+    program(0x0)
+{}
+
+Kernel::Kernel(const Kernel &other):
+    name(other.getName()),
+    kernel(other.kernel),
+    program(other.program)
+{
+    auto ret=clRetainKernel(kernel);
+    if(ret!=CL_SUCCESS)
+        throw(SException(ret));
+
+    ret=clRetainProgram(program);
+    if(ret!=CL_SUCCESS)
+        throw(SException(ret));
+}
+
+Kernel Kernel::operator=(const Kernel &other)
+{
+    name=other.name;
+    kernel=other.kernel;
+    program=other.program;
+
+    auto ret=clRetainKernel(kernel);
+    if(ret!=CL_SUCCESS)
+        throw(SException(ret));
+
+    ret=clRetainProgram(program);
+    if(ret!=CL_SUCCESS)
+        throw(SException(ret));
+}
+
 Kernel::Kernel(
     Context &ctx,
     Device& device,
     const string kernel_name,
-    const string kernel_path,
-    const string parameters):
+    const string kernel_src,
+    const string parameters,
+    bool from_string):
 
     name(kernel_name)
 {
-    ret_code ret = CL_SUCCESS;
-    char* source = Read_Source_File(kernel_path.c_str());
+    ret_code ret;
+    char* source = from_string ? 0x0 : Read_Source_File(kernel_src.c_str());
+    const char *src = from_string ? kernel_src.c_str() : 0x0;
 
-    if (!source)
+    if (!source && !src)
         throw(KernelFileNotFound());
 
     program = clCreateProgramWithSource(
                   ctx.getContext(),
                   1,
-                  const_cast<const char**>(&source),
+                  from_string ? &src : const_cast<const char**>(&source),
                   NULL,
                   &ret);
 
-    free(source);
+    if(source)
+        free(source);
 
     ret |= clBuildProgram(
                program,
@@ -108,14 +146,14 @@ Kernel::Kernel(
             NULL);
 
         clReleaseProgram(program);
-        cerr << buffer << endl;
+        SException e(ret, buffer);
         free(buffer);
-        throw ret;
+        throw e;
     }
 
     kernel = clCreateKernel(program, name.c_str(), &ret);
     if (ret != CL_SUCCESS)
-        throw(ret);
+        throw(SException(ret));
 }
 
 Kernel::~Kernel()
@@ -148,6 +186,11 @@ EnqueueKernel Kernel::operator()(
                enq_event_wait_list);
 }
 
+const string Kernel::getName() const
+{
+    return name;
+}
+
 EnqueueKernel::~EnqueueKernel()
 {}
 
@@ -176,8 +219,21 @@ void EnqueueKernel::execute(CmdQueue &queue)
     if (p_event)
         p_evt = &getEventToBind();
 
-    ret_code ret = CL_SUCCESS;
     cl_uint index = 0;
+
+    // Check that all kernel arguments are provided
+    cl_uint num_args;
+    auto ret =  clGetKernelInfo(
+                kernel,
+                CL_KERNEL_NUM_ARGS,
+                sizeof(num_args),
+                static_cast<void*>(&num_args),
+                NULL);
+    if(ret != CL_SUCCESS)
+        throw(SException(ret));
+
+    if(static_cast<size_t>(num_args)!=args.size())
+        throw(InvalidKernelArgs());
 
     // Range-based loop is unapplicable
     for (auto arg = args.begin(); arg != args.end(); arg++) {

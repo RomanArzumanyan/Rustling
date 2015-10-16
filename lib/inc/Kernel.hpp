@@ -53,6 +53,40 @@ public:
     {
         this->ptr = static_cast<void*>(&arg.getMemObject());
         this->size = sizeof(arg.getMemObject());
+
+        if(this->ptr == static_cast<cl_mem>(NULL))
+            throw(SException(-1, "Void OpenCL memory object"));
+        if(this->size==0)
+            throw(SException(-1, "Zero OpenCL memory object size"));
+    }
+
+    ~KernelArg()
+    {}
+
+    void* const getPtr()
+    {
+        return ptr;
+    }
+
+    size_t getSize()
+    {
+        return size;
+    }
+};
+
+template<class T>
+class KernelArg<SubBuffer<T>>: public AbstractKernelArg
+{
+public:
+    KernelArg(SubBuffer<T>& arg)
+    {
+        this->ptr = static_cast<void*>(&arg.getMemObject());
+        this->size = sizeof(arg.getMemObject());
+
+        if(this->ptr == static_cast<cl_mem>(NULL))
+            throw(SException(-1, "Void OpenCL memory object"));
+        if(this->size==0)
+            throw(SException(-1, "Zero OpenCL memory object size"));
     }
 
     ~KernelArg()
@@ -95,17 +129,27 @@ public:
 class Kernel
 {
 protected:
-    const std::string name;
+    std::string name;
     cl_kernel kernel;
     cl_program program;
+
 public:
+    Kernel();
+
+    Kernel(const Kernel& other);
+
+    Kernel operator=(const Kernel& other);
+
     Kernel(
         Context& ctx,
         Device& device,
         const std::string kernel_name,
-        const std::string kernel_path,
-        const std::string parameters = "");
-    ~Kernel();
+        const std::string kernel_src,
+        const std::string parameters = "",
+        bool from_string=false);
+
+    virtual ~Kernel();
+
     EnqueueKernel operator()(
         std::initializer_list<size_t> global_wsize,
         std::initializer_list<size_t> local_wsize,
@@ -113,5 +157,7 @@ public:
         cl_uint num_events_in_wait_list = 0,
         const size_t* global_work_offset = static_cast<size_t*>(NULL),
         const cl_event* enq_event_wait_list = static_cast<cl_event*>(NULL));
+
+    const std::string getName() const;
 };
 }

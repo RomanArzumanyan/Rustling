@@ -9,7 +9,17 @@ Context::Context(
     pfn_notify callback,
     void *user_data)
 {
-    int i = 0;
+    std::vector<Device> vec_devices(devices);
+    Context(vec_devices, properties, callback, user_data);
+}
+
+Context::Context(
+        std::vector<Device> devices,
+        const cl_context_properties *properties,
+        pfn_notify callback,
+        void *user_data)
+{
+    auto i = 0;
     ret_code ret;
     cl_device_id *devs = (cl_device_id*)calloc(devices.size(), sizeof(*devs));
 

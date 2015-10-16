@@ -12,7 +12,7 @@ static size_t getDevFeatureSize(
     cl_device_info info)
 {
     size_t size;
-    ret_code ret = clGetDeviceInfo(device, info, 0, NULL, &size);
+    auto ret = clGetDeviceInfo(device, info, 0, NULL, &size);
     if (ret != CL_SUCCESS)
         throw(InvalidDeviceParamInfo());
 
@@ -25,7 +25,7 @@ static void getDeviceFeature(
     size_t param_size,
     void* dest)
 {
-    ret_code ret = clGetDeviceInfo(device, info, param_size, dest, NULL);
+    auto ret = clGetDeviceInfo(device, info, param_size, dest, NULL);
     if (ret != CL_SUCCESS)
         throw(InvalidDeviceParamInfo());
 }
@@ -62,12 +62,27 @@ std::string Device::getName() const
     return name;
 }
 
+size_t Device::getNumCU() const
+{
+    cl_uint num_cu;
+
+    auto ret = clGetDeviceInfo(
+                getID(),
+                CL_DEVICE_MAX_COMPUTE_UNITS,
+                sizeof(num_cu),
+                static_cast<void*>(&num_cu),
+                NULL);
+    if(ret!=CL_SUCCESS)
+        throw(SException(ret));
+
+    return size_t(num_cu);
+}
+
 GPU::GPU(cl_device_id& device):
     Device(device)
 {
-    if (CL_DEVICE_TYPE_GPU != DeviceMgr::checkType(device_id)) {
+    if (CL_DEVICE_TYPE_GPU != DeviceMgr::checkType(device_id))
         throw (InvalidDeviceType());
-    }
 }
 
 CPU::CPU(cl_device_id& device) :

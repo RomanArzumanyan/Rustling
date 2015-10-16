@@ -1,11 +1,23 @@
 #include "SException.hpp"
+#include <sstream>
 using namespace std;
 
 namespace rustling
 {
 SException::SException(cl_int err, const char * errStr) :
-    cl::Error(err, errStr)
-{}
+    std::exception(),
+    err_code(err)
+{
+    if(errStr)
+        message = string(errStr);
+}
+
+const char *SException::what()
+{
+    std::stringstream ss;
+    ss << err_code << " " << message;
+    return ss.str().c_str();
+}
 
 NoPlatformFound::NoPlatformFound() :
     SException(CL_INVALID_PLATFORM, "No OpenCL platform(s) found.")
@@ -60,6 +72,15 @@ InvalidLocalGroupSize::InvalidLocalGroupSize():
 {}
 
 InvalidGlobalGroupSize::InvalidGlobalGroupSize():
-    SException(CL_INVALID_WORK_DIMENSION, "Incalid kernel work dimension")
+    SException(CL_INVALID_WORK_DIMENSION, "Invalid kernel work dimension")
 {}
+
+MemObjectsSizeMismatch::MemObjectsSizeMismatch():
+    SException(CL_INVALID_VALUE, "Memory objects size mismatch")
+{}
+
+InvalidKernelArgs::InvalidKernelArgs():
+    SException(CL_INVALID_VALUE, "Invalid kernel arguments list")
+{}
+
 }

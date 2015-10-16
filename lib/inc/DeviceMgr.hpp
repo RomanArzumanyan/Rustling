@@ -34,7 +34,7 @@ protected:
     template<class C>
     void add(cl_device_type type)
     {
-        typename devmgr_map::iterator it = factory_map.find(type);
+        auto it = factory_map.find(type);
         if (it == factory_map.end())
             factory_map[type] = new DeviceCreator<C>();
     }

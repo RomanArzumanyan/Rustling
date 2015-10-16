@@ -11,7 +11,7 @@ static string getParamString(
     cl_platform_info info_wanted)
 {
     size_t size;
-    cl_int ret = clGetPlatformInfo(platform, info_wanted, 0, NULL, &size);
+    auto ret = clGetPlatformInfo(platform, info_wanted, 0, NULL, &size);
     if (ret != CL_SUCCESS)
         throw(SException(ret));
 
@@ -90,7 +90,7 @@ std::vector<cl_device_id>& Platform::getDevices()
 
         for (auto& dev : devmap) {
             vector<cl_device_id> temp(dev.second);
-            ret_code ret = clGetDeviceIDs(platform_id,
+            auto ret = clGetDeviceIDs(platform_id,
                                           dev.first,
                                           dev.second,
                                           (cl_device_id*)&temp[0],

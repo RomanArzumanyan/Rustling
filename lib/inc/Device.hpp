@@ -14,6 +14,7 @@ public:
     virtual ~Device();
     virtual cl_device_id const & getID() const;
     virtual std::string getName() const;
+    virtual size_t getNumCU() const;
 };
 
 class GPU: public Device

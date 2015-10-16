@@ -4,6 +4,10 @@
 
 namespace rustling
 {
+CmdQueue::CmdQueue():
+    queue(0x0)
+{}
+
 CmdQueue::CmdQueue(
     Context &ctx,
     Device &dev,
@@ -12,6 +16,22 @@ CmdQueue::CmdQueue(
     ret_code ret;
     queue = clCreateCommandQueue(ctx.getContext(), dev.getID(), properties, &ret);
     if (ret != CL_SUCCESS)
+        throw(SException(ret));
+}
+
+CmdQueue::CmdQueue(const CmdQueue &other):
+    queue(other.queue)
+{
+    auto ret = clRetainCommandQueue(queue);
+    if(ret!=CL_SUCCESS)
+        throw(SException(ret));
+}
+
+CmdQueue &CmdQueue::operator=(const CmdQueue &other)
+{
+    this->queue=other.queue;
+    auto ret = clRetainCommandQueue(queue);
+    if(ret!=CL_SUCCESS)
         throw(SException(ret));
 }
 

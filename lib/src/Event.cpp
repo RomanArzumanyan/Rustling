@@ -15,7 +15,7 @@ void Event::Wait()
     if (!isUsed())
         throw(InvalidEvent());
 
-    ret_code ret = clWaitForEvents(1, &event);
+    auto ret = clWaitForEvents(1, &event);
     if (ret != CL_SUCCESS)
         throw(SException(ret));
 }
@@ -32,7 +32,7 @@ timer Event::getTime()
     if (!event)
         throw(NoGeneratedEvent());
 
-    ret_code ret = clWaitForEvents(1, &event);
+    auto ret = clWaitForEvents(1, &event);
     if (ret != CL_SUCCESS)
         throw(SException(ret));
 

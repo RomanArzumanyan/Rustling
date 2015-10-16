@@ -54,7 +54,7 @@ cl_event& EventCommand::getEventToBind()
 
 void Flush::execute(CmdQueue &queue)
 {
-    ret_code ret = clFlush(queue.getQueue());
+    auto ret = clFlush(queue.getQueue());
     if (ret != CL_SUCCESS)
         throw (SException(ret));
 }
@@ -64,7 +64,7 @@ Finish::Finish():
 
 void Finish::execute(CmdQueue &queue)
 {
-    ret_code ret = clFinish(queue.getQueue());
+    auto ret = clFinish(queue.getQueue());
     if (ret != CL_SUCCESS)
         throw (SException(ret));
 }

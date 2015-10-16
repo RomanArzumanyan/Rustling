@@ -11,7 +11,7 @@ typedef std::vector<Platform>::iterator platform_it;
 static cl_uint GetNumPlatforms(void)
 {
     cl_uint num_platforms = 0;
-    ret_code ret = clGetPlatformIDs(0, (cl_platform_id *)NULL, &num_platforms);
+    auto ret = clGetPlatformIDs(0, (cl_platform_id *)NULL, &num_platforms);
 
     if (ret != CL_SUCCESS)
         throw(SException(ret));
@@ -29,7 +29,7 @@ static vector<cl_platform_id> collectPlatformsList()
     }
 
     vector<cl_platform_id> platforms(num_pl);
-    ret_code ret = clGetPlatformIDs(platforms.size(), &platforms[0], NULL);
+    auto ret = clGetPlatformIDs(platforms.size(), &platforms[0], NULL);
     if (ret != CL_SUCCESS)
         throw(SException(ret));
 
@@ -41,13 +41,14 @@ std::vector<cl_platform_id> PlatformMgr::platforms = collectPlatformsList();
 map<cl_device_type, cl_uint> PlatformMgr::checkDevices(cl_platform_id platform)
 {
     map<cl_device_type, cl_uint> devices;
-    ret_code ret = CL_SUCCESS;
+    ret_code ret;
 
     for (auto dev_type : DeviceMgr::getSupportedTypes()) {
         cl_uint num_devs = 0;
         ret = clGetDeviceIDs(platform, dev_type, 0, NULL, &num_devs);
 
-        if (ret != CL_SUCCESS)
+        // CL_DEVICE_NOT_FOUND isn not error
+        if (ret != CL_SUCCESS && ret != CL_DEVICE_NOT_FOUND)
             throw(SException(ret));
 
         if (num_devs)

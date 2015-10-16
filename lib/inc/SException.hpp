@@ -3,16 +3,19 @@
 #define __CL_ENABLE_EXCEPTIONS
 
 #include <string>
+#include <exception>
 #include <CL/cl.h>
-#include <CL/cl.hpp>
 
 namespace rustling
 {
 
-class SException : public cl::Error
+class SException : public std::exception
 {
+    cl_int err_code;
+    std::string message;
 public:
     SException(cl_int err, const char * errStr = NULL);
+    virtual const char* what();
 };
 
 class NoPlatformFound : public SException
@@ -97,6 +100,18 @@ class InvalidGlobalGroupSize: public SException
 {
 public:
     InvalidGlobalGroupSize();
+};
+
+class MemObjectsSizeMismatch: public SException
+{
+public:
+    MemObjectsSizeMismatch();
+};
+
+class InvalidKernelArgs: public SException
+{
+public:
+    InvalidKernelArgs();
 };
 
 }
