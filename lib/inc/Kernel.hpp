@@ -123,7 +123,7 @@ public:
         const cl_event* enq_event_wait_list);
     ~EnqueueKernel();
     void execute(CmdQueue& queue);
-    EnqueueKernel& operator >>(Event& event);
+    //EnqueueKernel& operator >>(Event& event);
 };
 
 class Kernel

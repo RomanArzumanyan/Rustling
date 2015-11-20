@@ -99,6 +99,7 @@ class Buffer: public MemObject<T>
 {
     friend class ReadBuffer<T>;
     friend class WriteBuffer<T>;
+    friend class UpdateBuffer<T>;
     friend class MapBuffer<T>;
     friend class UnmapMemObject<T>;
 
@@ -248,6 +249,23 @@ public:
             return WriteBuffer<T>(*this, src, offset, write_size,
                                   num_events_in_wait_list, event_wait_list);
         } catch (SException &e) {
+            throw (e);
+        }
+    }
+
+    UpdateBuffer<T> update(
+        OpenCL_Side side,
+        size_t offset = 0,
+        size_t size = 0,
+        cl_uint num_events_in_wait_list = 0,
+        const cl_event* event_wait_list = NULL)
+    {
+        try {
+            auto update_size = size ? size : getSize();
+            return UpdateBuffer<T>(*this, side, offset, update_size,
+                num_events_in_wait_list, event_wait_list);
+        }
+        catch (SException &e) {
             throw (e);
         }
     }

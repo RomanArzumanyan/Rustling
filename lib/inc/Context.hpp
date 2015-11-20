@@ -31,6 +31,10 @@ public:
         pfn_notify callback = 0x0,
         void *user_data = 0x0);
 
+    Context(Context const &other);
+
+    Context operator=(Context const &other);
+
     ~Context();
     cl_context& getContext();
 };

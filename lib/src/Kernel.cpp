@@ -262,12 +262,11 @@ void EnqueueKernel::execute(CmdQueue &queue)
         throw(SException(ret));
 }
 
-EnqueueKernel& EnqueueKernel::operator >>(Event &event)
-{
-    p_event = &event;
-    return *this;
-}
-
+//EnqueueKernel& EnqueueKernel::operator >>(Event &event)
+//{
+//    p_event = &event;
+//    return *this;
+//}
 
 AbstractKernelArg::AbstractKernelArg()
 {}

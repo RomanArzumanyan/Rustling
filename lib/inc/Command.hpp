@@ -16,7 +16,7 @@ public:
     virtual void operator()(CmdQueue &queue);
 };
 
-class BlockingCommand: public BasicCommand
+class BlockingCommand: virtual public BasicCommand
 {
 protected:
     bool blocking;
@@ -24,10 +24,14 @@ protected:
 public:
     virtual ~BlockingCommand();
     virtual bool isBlocking() const;
-    virtual BlockingCommand& operator()(bool is_blocking) = 0;
+    virtual BlockingCommand& operator()(bool is_blocking) final
+    {
+        blocking = is_blocking;
+        return *this;
+    }
 };
 
-class EventCommand: public BasicCommand
+class EventCommand: virtual public BasicCommand
 {
     friend class CmdQueue;
     friend class Event;
@@ -38,8 +42,17 @@ protected:
     virtual cl_event& getEventToBind();
 public:
     virtual ~EventCommand();
-    virtual EventCommand& operator >>(Event &event) = 0;
+    virtual EventCommand& operator >>(Event &event) final
+    {
+        p_event = &event;
+        return *this;
+    }
 };
+
+class ComplexCommand : 
+    virtual public EventCommand, 
+    virtual public BlockingCommand
+{};
 
 class Flush: public BasicCommand
 {

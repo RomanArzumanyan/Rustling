@@ -1,4 +1,6 @@
 #pragma once
+
+#include "Common.hpp"
 #include "Command.hpp"
 #include "CmdQueue.hpp"
 #include "SException.hpp"
@@ -12,7 +14,7 @@ template<class T>
 class MemObject;
 
 template<class T>
-class ReadBuffer: public BlockingCommand, public EventCommand
+class ReadBuffer : public ComplexCommand
 {
 protected:
     Buffer<T>& buffer;
@@ -65,23 +67,10 @@ public:
             throw (e);
         }
     }
-
-    ReadBuffer& operator()(bool is_blocking)
-    {
-        blocking = is_blocking;
-        return *this;
-    }
-
-    ReadBuffer& operator >>(Event &event)
-    {
-        p_event = &event;
-        return *this;
-    }
-
 };
 
 template<class T>
-class WriteBuffer: public BlockingCommand, public EventCommand
+class WriteBuffer : public ComplexCommand
 {
 protected:
     Buffer<T>& buffer;
@@ -134,23 +123,53 @@ public:
             throw (e);
         }
     }
-
-    WriteBuffer& operator()(bool is_blocking)
-    {
-        blocking = is_blocking;
-        return *this;
-    }
-
-    WriteBuffer& operator >>(Event &event)
-    {
-        p_event = &event;
-        return *this;
-    }
-
 };
 
 template<class T>
-class MapBuffer: public BlockingCommand, public EventCommand
+class UpdateBuffer : 
+    public virtual ReadBuffer<T>, 
+    public virtual WriteBuffer<T>
+{
+protected:
+    OpenCL_Side ethalon_side;
+public:
+    UpdateBuffer(
+        Buffer<T>& update_buffer,
+        OpenCL_Side ethalon,
+        size_t update_offset,
+        size_t update_size,
+        cl_uint update_num_events_in_wait_list,
+        const cl_event* update_event_wait_list) :
+
+        ReadBuffer(
+        update_buffer,
+        update_buffer.getMappedTo(),
+        update_offset,
+        update_size,
+        update_num_events_in_wait_list,
+        update_event_wait_list),
+
+        WriteBuffer(
+        update_buffer,
+        update_buffer.getMappedTo(),
+        update_offset,
+        update_size,
+        update_num_events_in_wait_list,
+        update_event_wait_list),
+
+        ethalon_side(ethalon)
+    {}
+
+    void execute(CmdQueue& queue)
+    {
+        return (ethalon_side == OpenCL_Side::HOST) ?
+            ReadBuffer::execute(queue):
+            ReadBuffer::execute(queue);
+    }
+};
+
+template<class T>
+class MapBuffer : public ComplexCommand
 {
 protected:
     Buffer<T>& buffer;
@@ -205,18 +224,6 @@ public:
             throw (e);
         }
     }
-
-    MapBuffer& operator()(bool is_blocking)
-    {
-        blocking = is_blocking;
-        return *this;
-    }
-
-    MapBuffer& operator >>(Event &event)
-    {
-        p_event = &event;
-        return *this;
-    }
 };
 
 template<class T>
@@ -262,13 +269,6 @@ public:
             throw (e);
         }
     }
-
-    UnmapMemObject& operator >>(Event &event)
-    {
-        p_event = &event;
-        return *this;
-    }
-
 };
 
 template<class T>
@@ -325,12 +325,6 @@ public:
         } catch (SException& e) {
             throw (e);
         }
-    }
-
-    CopyMemObject& operator >>(Event &event)
-    {
-        p_event = &event;
-        return *this;
     }
 };
 }

@@ -14,6 +14,9 @@ CmdQueue::CmdQueue(
     cl_command_queue_properties properties)
 {
     ret_code ret;
+
+    auto context_ = ctx.getContext();
+    auto device_ = dev.getID();
     queue = clCreateCommandQueue(ctx.getContext(), dev.getID(), properties, &ret);
     if (ret != CL_SUCCESS)
         throw(SException(ret));
